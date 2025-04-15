@@ -3,6 +3,8 @@ import re
 from enum import Enum
 
 from textnode import TextNode, TextType
+from htmlnode import HTMLNode, LeafNode, ParentNode
+from node_transformer import text_node_to_html_node
 
 def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: TextType) -> List[TextNode]:
     """Parsing of TextType.TEXT nodes to separated TextNodes of TextType.TEXT, TextType.BOLD, TextType.ITALIC, TextType.CODE."""
@@ -163,3 +165,16 @@ def block_to_block_type(block: str) -> BlockType:
         return BlockType.ORDERED_LIST
     else:
         return BlockType.PARAGRAPH
+    
+
+def markdown_to_html_node(markdown: str) -> ParentNode:
+    blocks = markdown_to_blocks(markdown)
+
+    for bloc in blocks:
+        block_type = block_to_block_type(bloc)
+        
+        if block_type == BlockType.PARAGRAPH:
+            text_nodes = text_to_textnodes(bloc)
+            html_node = ParentNode(tag="p", children=[text_node_to_html_node(node) for node in text_nodes])
+
+    raise NotImplementedError("This function is not fully implemented yet.")
