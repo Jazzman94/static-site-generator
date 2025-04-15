@@ -1,5 +1,6 @@
 from typing import List, Tuple
 import re
+from enum import Enum
 
 from textnode import TextNode, TextType
 
@@ -127,3 +128,38 @@ def text_to_textnodes(text: str) -> List[TextNode]:
     nodes = split_nodes_link(nodes)
     
     return nodes
+
+def markdown_to_blocks(markdown: str) -> list[str]:
+    blocks = markdown.split("\n\n")
+    
+    cleaned_blocks = []
+    for block in blocks:
+        lines = block.split("\n")
+        block = "\n".join(map(lambda line: line.strip(), lines))
+        if block:  # Only add non-empty blocks
+            cleaned_blocks.append(block.strip())
+            
+    return cleaned_blocks
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+
+
+def block_to_block_type(block: str) -> BlockType:
+    if re.match(r"^#{1,6} ", block):
+        return BlockType.HEADING
+    elif block.startswith("```") and block.endswith("```"):
+        return BlockType.CODE
+    elif block.startswith("> "):
+        return BlockType.QUOTE
+    elif block.startswith("- "):
+        return BlockType.UNORDERED_LIST
+    elif re.match(r"^\d+\. ", block):
+        return BlockType.ORDERED_LIST
+    else:
+        return BlockType.PARAGRAPH

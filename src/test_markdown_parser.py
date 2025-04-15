@@ -288,6 +288,74 @@ class TestHTMLNode(unittest.TestCase):
         result = text_to_textnodes(input)
         self.assertEqual(output, result)
 
+    # Test cases for markdown_to_blocks function
+    def test_markdown_to_blocks(self):
+        md = """
+    # This is header
+
+    ```
+    code
+    code
+    code
+    ```
+
+    This is **bolded** paragraph
+
+    This is another paragraph with _italic_ text and `code` here
+    This is the same paragraph on a new line
+
+    - This is a list
+    - with items
+    """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "# This is header",
+                "```\ncode\ncode\ncode\n```",
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_empty(self):
+        md = ""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_markdown_to_blocks_only_whitespace(self):
+        md = "\n\n   \n\n"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_markdown_to_blocks_multiple_blank_lines(self):
+        md = "Block 1\n\n\n\nBlock 2"
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ["Block 1", "Block 2"])
+
+    def test_block_to_block_type(self):
+        self.assertEqual(block_to_block_type("# Heading level 1"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## Heading level 2"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("###### Heading level 6"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("####### Invalid heading"), BlockType.PARAGRAPH)
+
+        self.assertEqual(block_to_block_type("```code block```"), BlockType.CODE)
+        self.assertEqual(block_to_block_type("```python\nprint('Hello!')\n```"), BlockType.CODE)
+
+        self.assertEqual(block_to_block_type("> This is a quote"), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type("> Line 1\n> Line 2"), BlockType.QUOTE)
+
+        self.assertEqual(block_to_block_type("- Item in unordered list"), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type("- "), BlockType.UNORDERED_LIST)
+
+        self.assertEqual(block_to_block_type("1. First item in ordered list"), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("10. Another item"), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("1 item without dot"), BlockType.PARAGRAPH)
+
+        self.assertEqual(block_to_block_type("Just a normal paragraph."), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(""), BlockType.PARAGRAPH)
+
 
 if __name__ == "__main__":
     unittest.main()
