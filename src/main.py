@@ -35,8 +35,8 @@ def generate_page(from_path, template_path, dest_path, base_path):
     title = extract_title(content)
 
     html = template.replace("{{ Title }}", title).replace("{{ Content }}", html)
-    html.replace('href="/', f'href="{base_path}')
-    html.replace('src="/', f'src="{base_path}')
+    html = html.replace('href="/', f'href="{base_path}')
+    html = html.replace('src="/', f'src="{base_path}')
 
     dirs = dest_path.split("/")
     for i in range(len(dirs)-1):
@@ -64,17 +64,17 @@ def generate_pages_recursively(from_path, template_path, dest_path, base_path):
 
 if __name__ == "__main__":
     source_dir = "static"
-    dest_dir = "docs"
+    dest_dir = "docs/static"
 
     basepath = "/"
 
-    if len(sys.argv) > 0:
-        basepath = sys.argv[0]
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
     
     copy_static_files(source_dir, dest_dir)
 
     generate_pages_recursively(
         from_path="content/",
         template_path="template.html",
-        dest_path=dest_dir,
+        dest_path="docs",
         base_path=basepath)
